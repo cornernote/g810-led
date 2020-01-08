@@ -19,6 +19,7 @@
 #include <iostream>
 #include <unistd.h>
 #include <vector>
+#include <iomanip>
 
 #if defined(hidapi)
 	#include <locale>
@@ -411,6 +412,7 @@ bool LedKeyboard::setKeys(KeyValueArray keyValues) {
 	};
 	
 	for (uint8_t i = 0; i < keyValues.size(); i++) {
+        //std::cout << std::hex << static_cast<uint16_t>(keyValues[i].key) << std::endl;
 		switch(static_cast<LedKeyboard::KeyAddressGroup>(static_cast<uint16_t>(keyValues[i].key) >> 8 )) {
 			case LedKeyboard::KeyAddressGroup::logo:
 				switch (currentDevice.model) {
@@ -477,7 +479,7 @@ bool LedKeyboard::setKeys(KeyValueArray keyValues) {
 	}
 	
 	for (uint8_t kag = 0; kag < 5; kag++) {
-		
+        //std::cout << SortedKeys[kag].size() << std::endl;
 		if (SortedKeys[kag].size() > 0) {
 			
 			uint8_t gi = 0;
@@ -493,14 +495,38 @@ bool LedKeyboard::setKeys(KeyValueArray keyValues) {
 						break;
 					case 1:
 						data_size = 64;
+//                        switch (currentDevice.model) {
+//                            case LedKeyboard::KeyboardModel::g815:
+//        						data_size = 20;
+//                                break;
+//                            default:
+//        						data_size = 64;
+//                                break;
+//                        }
 						data = getKeyGroupAddress(LedKeyboard::KeyAddressGroup::indicators);
 						break;
 					case 2:
 						data_size = 64;
+//                        switch (currentDevice.model) {
+//                            case LedKeyboard::KeyboardModel::g815:
+//        						data_size = 20;
+//                                break;
+//                            default:
+//        						data_size = 64;
+//                                break;
+//                        }
 						data = getKeyGroupAddress(LedKeyboard::KeyAddressGroup::multimedia);
 						break;
 					case 3:
 						data_size = 64;
+//                        switch (currentDevice.model) {
+//                            case LedKeyboard::KeyboardModel::g815:
+//        						data_size = 20;
+//                                break;
+//                            default:
+//        						data_size = 64;
+//                                break;
+//                        }
 						data = getKeyGroupAddress(LedKeyboard::KeyAddressGroup::gkeys);
 						break;
 					case 4:
@@ -919,6 +945,12 @@ bool LedKeyboard::setNativeEffect(NativeEffect effect, NativeEffectPart part,
 
 bool LedKeyboard::sendDataInternal(byte_buffer_t &data) {
 	if (data.size() > 0) {
+
+//		for(unsigned short int i = 0; i < data.size(); i++){
+//		  std::cout << std::setfill('0') << std::hex << (int) data.data()[i] << std::dec << ' ';
+//		}
+//		std::cout << std::endl;
+
 		#if defined(hidapi)
 			if (! open(currentDevice.vendorID, currentDevice.productID, currentDevice.serialNumber)) return false;
 			if (hid_write(m_hidHandle, const_cast<unsigned char*>(data.data()), data.size()) < 0) {
@@ -975,11 +1007,10 @@ LedKeyboard::byte_buffer_t LedKeyboard::getKeyGroupAddress(LedKeyboard::KeyAddre
 					return { 0x12, 0xff, 0x0c, 0x3a, 0x00, 0x01, 0x00, 0x0e };
 			}
 			break;
-		case KeyboardModel::g610:
-		case KeyboardModel::g810:
 		case KeyboardModel::g815:
 			switch (keyAddressGroup) {
 				case LedKeyboard::KeyAddressGroup::logo:
+//					return { 0x11, 0xff, 0x10, 0x1f };
 					return { 0x11, 0xff, 0x0c, 0x3a, 0x00, 0x10, 0x00, 0x01 };
 				case LedKeyboard::KeyAddressGroup::indicators:
 					return { 0x12, 0xff, 0x0c, 0x3a, 0x00, 0x40, 0x00, 0x05 };
@@ -991,6 +1022,20 @@ LedKeyboard::byte_buffer_t LedKeyboard::getKeyGroupAddress(LedKeyboard::KeyAddre
 					return { 0x12, 0xff, 0x0c, 0x3a, 0x00, 0x01, 0x00, 0x0e };
 			}
 			break;
+//		case KeyboardModel::g815:
+//			switch (keyAddressGroup) {
+//				case LedKeyboard::KeyAddressGroup::logo:
+//				case LedKeyboard::KeyAddressGroup::indicators:
+//					return { 0x11, 0xff, 0x10, 0x1f };
+//				case LedKeyboard::KeyAddressGroup::gkeys:
+//					return { 0x11, 0xff, 0x10, 0x1f };
+//				case LedKeyboard::KeyAddressGroup::multimedia:
+//					return { 0x11, 0xff, 0x10, 0x1f };
+//				case LedKeyboard::KeyAddressGroup::keys:
+//					return { 0x12, 0xff, 0x0c, 0x3a, 0x00, 0x01, 0x00, 0x0e };
+//			}
+		case KeyboardModel::g610:
+		case KeyboardModel::g810:
 		case KeyboardModel::g910:
 			switch (keyAddressGroup) {
 				case LedKeyboard::KeyAddressGroup::logo:
